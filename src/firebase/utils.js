@@ -19,12 +19,13 @@ initializeApp({
   credential: cert(serviceAccount),
 });
 
-const db = getFirestore();
 const USER_DB = "users";
-const PUBLIC_CHAT_DB = "chat";
+const USER_CHAT_DB = "users_chat";
+const CHAT_DB = "chat";
 
 module.exports = {
   db: getFirestore(),
   USER_DB,
-  PUBLIC_CHAT_DB,
+  USER_CHAT_DB,
+  CHAT_DB,
 };

@@ -1,63 +1,65 @@
 //
 const express = require("express");
-const app = express();
+const { createServer } = require("node:http");
 const path = require("path");
-const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const cors = require("cors");
-const { Socket } = require("socket.io");
+const { Server } = require("socket.io");
 
+//controller
 const userAuthRouter = require("./controller/user");
-
-const PORT = process.env.PORT || 4000;
-const server = app.listen(PORT, () => console.log(`http://localhost:${PORT}`));
-
-const io = require("socket.io")(server);
-
 const messageMap = [];
+const PORT = process.env.PORT || 4000;
 
-app.use(express.static(path.join(__dirname, "..", "public")));
-app.use(express.json());
-app.use(
-  cookieSession({
-    keys: ["lkasld235j"],
-  })
-);
-app.use(cors());
-app.use(userAuthRouter);
+// let socketConnection = new Set();
+// io.on("connection", onConnection);
 
-let socketConnection = new Set();
-io.on("connection", onConnection);
-/**
- *
- * @param {Socket} socket
- */
-function onConnection(socket) {
-  io.emit("get-connection", socket.id);
-  console.log(socket.id);
-  socketConnection.add(socket.id);
+// function onConnection(socket) {
+//   io.emit("get-connection", socket.id);
+//   console.log(socket.id);
+//   socketConnection.add(socket.id);
 
-  io.emit("client-total", socketConnection.size);
-  io.emit("all-message", messageMap);
+//   io.emit("client-total", socketConnection.size);
+//   io.emit("all-message", messageMap);
 
-  socket.on("disconnect", () => {
-    console.log("socket diconected socet id", socket.id);
-    socketConnection.delete(socket.id);
+//   socket.on("disconnect", () => {
+//     console.log("socket diconected socet id", socket.id);
+//     socketConnection.delete(socket.id);
 
-    io.emit("client-total", socketConnection.size);
-  });
-  //   console.log(socketConnection.size);
+//     io.emit("client-total", socketConnection.size);
+//   });
+//   //   console.log(socketConnection.size);
 
-  /**
-   * handling message event
-   */
+//   /**
+//    * handling message event
+//    */
 
-  socket.on("message", (data) => {
-    const newData = {
-      ...data,
-      senderId: socket.id,
-    };
-    messageMap.push(newData);
-    io.emit("all-message", messageMap);
+//   socket.on("message", (data) => {
+//     const newData = {
+//       ...data,
+//       senderId: socket.id,
+//     };
+//     messageMap.push(newData);
+//     io.emit("all-message", messageMap);
+//   });
+// }
+
+async function main(params) {
+  const app = express();
+  app.use(express.static(path.join(__dirname, "..", "public")));
+  app.use(express.json());
+  app.use(
+    cookieSession({
+      keys: ["lkasld235j"],
+    })
+  );
+  app.use(cors());
+  app.use(userAuthRouter);
+
+  const server = createServer(app);
+  const io = new Server(server);
+  server.listen(PORT, () => {
+    console.log("server running at http://localhost:4000");
   });
 }
+main();
