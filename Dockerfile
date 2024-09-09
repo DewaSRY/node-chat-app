@@ -23,11 +23,11 @@ WORKDIR /usr/src/app
 
 
 # Run the application as a non-root user.
-USER node
 
 # Copy the rest of the source files into the image.
 COPY . .
 RUN  npm i --omit=dev
+USER node
 
 
 # Expose the port that the application listens on.
