@@ -23,8 +23,8 @@ export async function fetchUserRegister(
   });
   return data;
 }
-export async function fetchSignin(): Promise<UserPayload> {
-  const { data } = await axios.get<UserPayload>(`${BE_URL}/api/register`);
+export async function fetchSigin(): Promise<UserPayload> {
+  const { data } = await axios.get<UserPayload>(`${BE_URL}/api/sigin`);
   return data;
 }
 export async function fetchGetAllFriends(): Promise<Friends[]> {

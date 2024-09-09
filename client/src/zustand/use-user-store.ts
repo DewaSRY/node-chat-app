@@ -9,7 +9,7 @@ import type {
 import {
   fetchGetAllFriends,
   fetchUserLogin,
-  fetchSignin,
+  // fetchSigin,
   fetchMakeAfriends,
   fetchUserRegister,
 } from "@/api/utils";
@@ -20,7 +20,7 @@ const initialState = {
   allUser: [] as PublicUser[],
 };
 type Actions = {
-  fetchSignIn: () => Promise<void>;
+  fetchSigin: () => Promise<void>;
   fetchUserLogin: (_payload: UserLogin) => Promise<void>;
   fetchUserRegister: (_payload: UserRegister) => Promise<void>;
   fetchGetAllFriends: (_payload: UserRegister) => Promise<void>;
@@ -29,16 +29,22 @@ type Actions = {
 type State = typeof initialState;
 const useUserStore = create<State & Actions>((set) => ({
   ...initialState,
-  fetchSignIn: async () => {
+  fetchSigin: async () => {
     set((s) => ({ ...s, isLoading: true }));
     toast.warn("Fetch user data");
     try {
-      const data = await fetchSignin();
+      const userEmail = localStorage.getItem("email") ?? "";
+      const passwordEmail = localStorage.getItem("password") ?? "";
+      const data = await fetchUserLogin({
+        email: userEmail,
+        password: passwordEmail,
+      });
       if (data) {
         set((s) => ({ ...s, user: data }));
       }
-      toast.warn(`welcome back ${data.username}`);
+      toast.success(`welcome back ${data.username}`);
     } catch (e) {
+      console.log(e);
     } finally {
       set((s) => ({ ...s, isLoading: false }));
     }
@@ -50,6 +56,8 @@ const useUserStore = create<State & Actions>((set) => ({
       const data = await fetchUserLogin(payload);
       if (data) {
         set((s) => ({ ...s, user: data }));
+        localStorage.setItem("email", payload.email);
+        localStorage.setItem("password", payload.password);
       }
       toast.warn(`welcome back ${data.username}`);
     } catch (e) {
@@ -65,6 +73,8 @@ const useUserStore = create<State & Actions>((set) => ({
       const data = await fetchUserRegister(payload);
       if (data) {
         set((s) => ({ ...s, user: data }));
+        localStorage.setItem("email", payload.email);
+        localStorage.setItem("password", payload.password);
       }
       toast.warn(`welcome ${data.username}`);
     } catch (e) {
