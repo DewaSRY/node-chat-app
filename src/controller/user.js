@@ -38,6 +38,7 @@ userRouter.post(
         email,
         password,
         id: userrecord.uid,
+        friends: [],
       });
       const userChatRef = db.collection(USER_CHAT_DB).doc(userrecord.uid);
       await userChatRef.set({
@@ -50,6 +51,7 @@ userRouter.post(
         username,
         email,
         chat: [],
+        friends: [],
         id: userrecord.uid,
       });
     } catch (error) {
@@ -69,7 +71,7 @@ userRouter.post(
       const userDoc = await getAuth().getUserByEmail(email);
       const userRef = db.collection(USER_DB).doc(userDoc.uid);
       const dataSnapeshot = await userRef.get();
-      const { password: dataPAssword, id } = dataSnapeshot.data();
+      const { password: dataPAssword, id, friends } = dataSnapeshot.data();
       const userChatRef = db.collection(USER_CHAT_DB).doc(userDoc.uid);
 
       if (dataPAssword !== password) {
@@ -87,6 +89,7 @@ userRouter.post(
         username: userDoc.displayName,
         chat: chat,
         id,
+        friends,
       });
     } catch (error) {
       return res.status(404).send({
@@ -111,7 +114,7 @@ userRouter.get("/api/signin", async (req, res) => {
     const userSnapshot = userDoc.data();
     const userChatSnapshot = userChatDoc.data();
 
-    const { email, id, username } = userSnapshot;
+    const { email, id, username, friends } = userSnapshot;
     const { chat } = userChatSnapshot;
     req.session.userId = userid;
     req.session.currentUsername = username;
@@ -120,6 +123,7 @@ userRouter.get("/api/signin", async (req, res) => {
       username,
       chat,
       id,
+      friends,
     });
   } catch (error) {
     return res.status(404).send({

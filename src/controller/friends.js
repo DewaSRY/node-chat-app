@@ -51,6 +51,7 @@ friendsRouter.post("/api/friend/:id", requireAuth, async (reg, res) => {
   const currentUsername = reg.session.currentUsername;
   const friendId = reg.params.id;
 
+  const userRef = db.collection(USER_DB).doc(currentId);
   const friendRef = db.collection(USER_DB).doc(friendId);
   const userChatRef = db.collection(USER_CHAT_DB).doc(currentId);
   const friendChatRef = db.collection(USER_CHAT_DB).doc(friendId);
@@ -67,6 +68,12 @@ friendsRouter.post("/api/friend/:id", requireAuth, async (reg, res) => {
   const chatRef = db.collection(CHAT_DB).doc(salt);
   await chatRef.set({
     message: [],
+  });
+  await userRef.set({
+    friends: FieldValue.arrayUnion(friendId),
+  });
+  await friendRef.set({
+    friends: FieldValue.arrayUnion(currentId),
   });
   const currentDate = Date.now();
   await userChatRef.set({
