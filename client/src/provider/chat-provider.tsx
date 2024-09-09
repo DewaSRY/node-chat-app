@@ -29,7 +29,7 @@ export default function Provider({ children }: ProviderProps) {
   function sendMessage(text: string) {
     socket.emit(CHAT_MESSAGE, {
       text,
-      senderId: user?.id,
+      senderName: user?.username,
     });
   }
 

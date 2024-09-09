@@ -1,6 +1,7 @@
 export interface Message {
   text: string;
-  senderId: string;
+  senderName: string;
+  createAt: number;
 }
 
 export interface AllMessages {
