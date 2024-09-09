@@ -16,6 +16,16 @@ userRouter.post(
     try {
       const { email, username, password } = req.body;
 
+      const findDuplicateUserName = await db
+        .collection(USER_DB)
+        .where("username", "==", username)
+        .get();
+      if (findDuplicateUserName.size !== 0) {
+        return res.status(409).send({
+          error: "username already register",
+        });
+      }
+
       const userrecord = await getAuth().createUser({
         email: email,
         password: password,
@@ -27,21 +37,24 @@ userRouter.post(
         username,
         email,
         password,
+        id: userrecord.uid,
       });
       const userChatRef = db.collection(USER_CHAT_DB).doc(userrecord.uid);
       await userChatRef.set({
         chat: [],
       });
       req.session.userId = userrecord.uid; // Proper session key
+      req.session.currentUsername = username;
 
       return res.status(200).send({
         username,
         email,
         chat: [],
+        id: userrecord.uid,
       });
     } catch (error) {
-      return res.status(404).send({
-        error: "failed to register",
+      return res.status(409).send({
+        error: "email already register",
       });
     }
   }
@@ -55,11 +68,9 @@ userRouter.post(
     try {
       const userDoc = await getAuth().getUserByEmail(email);
       const userRef = db.collection(USER_DB).doc(userDoc.uid);
-      const userChatRef = db.collection(USER_CHAT_DB).doc(userDoc.uid);
-
       const dataSnapeshot = await userRef.get();
-
-      const { password: dataPAssword } = dataSnapeshot.data();
+      const { password: dataPAssword, id } = dataSnapeshot.data();
+      const userChatRef = db.collection(USER_CHAT_DB).doc(userDoc.uid);
 
       if (dataPAssword !== password) {
         return res.status(400).send({
@@ -70,10 +81,12 @@ userRouter.post(
       const { chat } = userChatSnapeshot.data();
 
       req.session.userId = userDoc.uid;
+      req.session.currentUsername = userDoc.displayName;
       return res.status(200).send({
         email: userDoc.email,
         username: userDoc.displayName,
         chat: chat,
+        id,
       });
     } catch (error) {
       return res.status(404).send({
@@ -98,13 +111,15 @@ userRouter.get("/api/signin", async (req, res) => {
     const userSnapshot = userDoc.data();
     const userChatSnapshot = userChatDoc.data();
 
-    const { email, password } = userSnapshot;
+    const { email, id, username } = userSnapshot;
     const { chat } = userChatSnapshot;
     req.session.userId = userid;
+    req.session.currentUsername = username;
     return res.status(200).send({
       email,
-      password,
+      username,
       chat,
+      id,
     });
   } catch (error) {
     return res.status(404).send({

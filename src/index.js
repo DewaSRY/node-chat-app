@@ -8,6 +8,7 @@ const { Server } = require("socket.io");
 
 //controller
 const userAuthRouter = require("./controller/user");
+const friendRouter = require("./controller/friends");
 const messageMap = [];
 const PORT = process.env.PORT || 4000;
 
@@ -55,6 +56,7 @@ async function main(params) {
   );
   app.use(cors());
   app.use(userAuthRouter);
+  app.use(friendRouter);
 
   const server = createServer(app);
   const io = new Server(server);
