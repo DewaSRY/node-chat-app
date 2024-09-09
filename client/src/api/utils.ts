@@ -5,7 +5,8 @@ import type {
   Friends,
 } from "@/types/user-type";
 import axios from "axios";
-const BE_URL = import.meta.env.VITE_BE_URL;
+const BE_URL =
+  import.meta.env.VITE_BE_URL ?? "https://dewa-node-chat-app.up.railway.app/";
 export async function fetchUserLogin(pyload: UserLogin): Promise<UserPayload> {
   const { data } = await axios.post<UserPayload>(`${BE_URL}/api/login`, {
     email: pyload.email,

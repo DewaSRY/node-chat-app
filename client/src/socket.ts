@@ -4,9 +4,11 @@ import { io } from "socket.io-client";
 // const URL =
 //   process.env.NODE_ENV === "production" ? undefined : "http://localhost:4000";
 
-export const socket = io(`http://localhost:4000`);
-// export const socket = io(
-//   `ws://${import.meta.env.VITE_BE_URL ?? "http://localhost:4000"}`
-// );
+// export const socket = io(`http://localhost:4000`);
+export const socket = io(
+  `ws://${
+    import.meta.env.VITE_BE_URL ?? "https://dewa-node-chat-app.up.railway.app/"
+  }`
+);
 export const CHAT_MESSAGE = "chat-message";
 export const START_MESSAGE = "start-message";
