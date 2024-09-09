@@ -27,7 +27,7 @@ USER node
 
 # Copy the rest of the source files into the image.
 COPY . .
-RUN  npm ci --omit=dev
+RUN  npm i --omit=dev
 
 
 # Expose the port that the application listens on.
