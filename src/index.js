@@ -58,7 +58,7 @@ async function main(params) {
     });
   });
 
-  server.listen(PORT, () => {
+  server.listen(PORT, process.env.HOST ?? "localhost", () => {
     console.log("server running at http://localhost:4000");
   });
 }
