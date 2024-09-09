@@ -7,7 +7,6 @@ module.exports = {
     .withMessage("Must be between 5 and 40 characters"),
   requireEmail: check("email")
     .trim()
-    .normalizeEmail()
     .isEmail()
     .withMessage("Must be a valid email"),
   requirePassword: check("password")

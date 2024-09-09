@@ -41,9 +41,7 @@ friendsRouter.get("/api/friend", requireAuth, async (reg, res) => {
       allData.push(res);
     }
   });
-  res.status(200).send({
-    data: allData,
-  });
+  res.status(200).send(allData);
 });
 
 friendsRouter.post("/api/friend/:id", requireAuth, async (reg, res) => {
@@ -69,14 +67,14 @@ friendsRouter.post("/api/friend/:id", requireAuth, async (reg, res) => {
   await chatRef.set({
     message: [],
   });
-  await userRef.set({
+  await userRef.update({
     friends: FieldValue.arrayUnion(friendId),
   });
-  await friendRef.set({
+  await friendRef.update({
     friends: FieldValue.arrayUnion(currentId),
   });
   const currentDate = Date.now();
-  await userChatRef.set({
+  await userChatRef.update({
     chat: FieldValue.arrayUnion({
       chatId: salt,
       latesMessage: "",
@@ -85,7 +83,7 @@ friendsRouter.post("/api/friend/:id", requireAuth, async (reg, res) => {
     }),
   });
 
-  await friendChatRef.set({
+  await friendChatRef.update({
     chat: FieldValue.arrayUnion({
       chatId: salt,
       latesMessage: "",

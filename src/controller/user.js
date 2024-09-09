@@ -56,7 +56,7 @@ userRouter.post(
       });
     } catch (error) {
       return res.status(409).send({
-        error: "email already register",
+        error: "failedToRegister",
       });
     }
   }
@@ -119,11 +119,11 @@ userRouter.get("/api/signin", async (req, res) => {
     req.session.userId = userid;
     req.session.currentUsername = username;
     return res.status(200).send({
-      email,
-      username,
-      chat,
-      id,
-      friends,
+      email: email,
+      username: username,
+      chat: chat,
+      id: id,
+      friends: friends,
     });
   } catch (error) {
     return res.status(404).send({
