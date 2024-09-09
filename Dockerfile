@@ -1,30 +1,38 @@
-# syntax=docker/dockerfile:1
-
-# Comments are provided throughout this file to help you get started.
-# If you need more help, visit the Dockerfile reference guide at
-# https://docs.docker.com/go/dockerfile-reference/
-
-# Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
-
+# Use an ARG to specify the Node.js version
 ARG NODE_VERSION=21.2.0
 
-FROM node:${NODE_VERSION}-alpine
+# Base stage with Alpine Node.js
+FROM node:${NODE_VERSION}-alpine AS base
 
-# Use production node environment by default.
-ENV NODE_ENV production
-
-
+# Set up working directory
 WORKDIR /usr/src/app
 
+# Install dependencies in build stage
+FROM base AS build
+
+# Copy package.json and package-lock.json to install dependencies
 COPY package*.json ./
-RUN  npm i --omit=dev
-USER node
+
+# Install only production dependencies
+RUN npm i --omit=dev
+
+# Final stage for the production build
+FROM base AS final
+
+# Set the environment variable to production
+ENV NODE_ENV=production
+
+# Set up working directory again (to ensure it's correct)
+WORKDIR /usr/src/app
+# Copy the installed node_modules from the build stage
+COPY --from=build /usr/src/app/node_modules ./node_modules
+
+# Copy public and src folders to the final stage
 
 COPY . .
 
-
-# Expose the port that the application listens on.
+# Expose the port the app will run on
 EXPOSE 4000
 
-# Run the application.
-CMD npm run start
+# Start the application
+CMD ["npm", "run", "start"]
