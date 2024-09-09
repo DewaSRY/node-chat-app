@@ -10,7 +10,6 @@ class User {
     int id;
     String  username;
     String email;
-    List<UserChat> chat
     List<User.id> firendList
 }
 class UserChat{

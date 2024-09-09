@@ -6,7 +6,7 @@ const {
   requirePassword,
   requireUsername,
 } = require("./validator");
-const { db, USER_DB, USER_CHAT_DB } = require("../firebase/utils");
+const { db, USER_DB } = require("../firebase/utils");
 const userRouter = Router();
 
 userRouter.post(
@@ -41,16 +41,16 @@ userRouter.post(
         friends: [],
       });
       const userChatRef = db.collection(USER_CHAT_DB).doc(userrecord.uid);
-      await userChatRef.set({
-        chat: [],
-      });
+      // await userChatRef.set({
+      //   chat: [],
+      // });
       req.session.userId = userrecord.uid; // Proper session key
       req.session.currentUsername = username;
 
       return res.status(200).send({
         username,
         email,
-        chat: [],
+        // chat: [],
         friends: [],
         id: userrecord.uid,
       });
@@ -72,22 +72,22 @@ userRouter.post(
       const userRef = db.collection(USER_DB).doc(userDoc.uid);
       const dataSnapeshot = await userRef.get();
       const { password: dataPAssword, id, friends } = dataSnapeshot.data();
-      const userChatRef = db.collection(USER_CHAT_DB).doc(userDoc.uid);
+      // const userChatRef = db.collection(USER_CHAT_DB).doc(userDoc.uid);
 
       if (dataPAssword !== password) {
         return res.status(400).send({
           error: "password does't match",
         });
       }
-      const userChatSnapeshot = await userChatRef.get();
-      const { chat } = userChatSnapeshot.data();
+      // const userChatSnapeshot = await userChatRef.get();
+      // const { chat } = userChatSnapeshot.data();
 
       req.session.userId = userDoc.uid;
       req.session.currentUsername = userDoc.displayName;
       return res.status(200).send({
         email: userDoc.email,
         username: userDoc.displayName,
-        chat: chat,
+        // chat: chat,
         id,
         friends,
       });
@@ -107,7 +107,7 @@ userRouter.get("/api/signin", async (req, res) => {
     });
   }
   const userDocRef = db.collection(USER_DB).doc(userid);
-  const userChatRef = db.collection(USER_CHAT_DB).doc(userid);
+  // const userChatRef = db.collection(USER_CHAT_DB).doc(userid);
   try {
     const userDoc = await userDocRef.get();
     const userChatDoc = await userChatRef.get();
@@ -115,13 +115,13 @@ userRouter.get("/api/signin", async (req, res) => {
     const userChatSnapshot = userChatDoc.data();
 
     const { email, id, username, friends } = userSnapshot;
-    const { chat } = userChatSnapshot;
+    // const { chat } = userChatSnapshot;
     req.session.userId = userid;
     req.session.currentUsername = username;
     return res.status(200).send({
       email: email,
       username: username,
-      chat: chat,
+      // chat: chat,
       id: id,
       friends: friends,
     });
