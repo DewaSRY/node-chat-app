@@ -16,18 +16,11 @@ ENV NODE_ENV production
 
 WORKDIR /usr/src/app
 
-# Download dependencies as a separate step to take advantage of Docker's caching.
-# Leverage a cache mount to /root/.npm to speed up subsequent builds.
-# Leverage a bind mounts to package.json and package-lock.json to avoid having to copy them into
-# into this layer.
-
-
-# Run the application as a non-root user.
-
-# Copy the rest of the source files into the image.
-COPY . .
+COPY package*.json ./
 RUN  npm i --omit=dev
 USER node
+
+COPY . .
 
 
 # Expose the port that the application listens on.
