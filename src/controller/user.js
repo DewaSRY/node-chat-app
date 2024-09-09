@@ -40,23 +40,20 @@ userRouter.post(
         id: userrecord.uid,
         friends: [],
       });
-      const userChatRef = db.collection(USER_CHAT_DB).doc(userrecord.uid);
-      // await userChatRef.set({
-      //   chat: [],
-      // });
-      req.session.userId = userrecord.uid; // Proper session key
+
+      req.session.userId = userrecord.uid;
       req.session.currentUsername = username;
 
       return res.status(200).send({
         username,
         email,
-        // chat: [],
         friends: [],
         id: userrecord.uid,
       });
     } catch (error) {
+      console.log(error);
       return res.status(409).send({
-        error: "failedToRegister",
+        error: "failed to register",
       });
     }
   }
@@ -72,22 +69,17 @@ userRouter.post(
       const userRef = db.collection(USER_DB).doc(userDoc.uid);
       const dataSnapeshot = await userRef.get();
       const { password: dataPAssword, id, friends } = dataSnapeshot.data();
-      // const userChatRef = db.collection(USER_CHAT_DB).doc(userDoc.uid);
 
       if (dataPAssword !== password) {
         return res.status(400).send({
           error: "password does't match",
         });
       }
-      // const userChatSnapeshot = await userChatRef.get();
-      // const { chat } = userChatSnapeshot.data();
-
       req.session.userId = userDoc.uid;
       req.session.currentUsername = userDoc.displayName;
       return res.status(200).send({
         email: userDoc.email,
         username: userDoc.displayName,
-        // chat: chat,
         id,
         friends,
       });
@@ -99,35 +91,33 @@ userRouter.post(
   }
 );
 
-userRouter.get("/api/signin", async (req, res) => {
+userRouter.get("/api/sigin", async (req, res) => {
   const userid = req.session.userId;
+  console.log("hite this ", req.session);
+
   if (!userid) {
     return res.status(404).send({
       error: "you are not auth",
     });
   }
   const userDocRef = db.collection(USER_DB).doc(userid);
-  // const userChatRef = db.collection(USER_CHAT_DB).doc(userid);
   try {
     const userDoc = await userDocRef.get();
-    const userChatDoc = await userChatRef.get();
     const userSnapshot = userDoc.data();
-    const userChatSnapshot = userChatDoc.data();
 
     const { email, id, username, friends } = userSnapshot;
-    // const { chat } = userChatSnapshot;
     req.session.userId = userid;
     req.session.currentUsername = username;
     return res.status(200).send({
       email: email,
       username: username,
-      // chat: chat,
       id: id,
       friends: friends,
     });
   } catch (error) {
+    console.log(error);
     return res.status(404).send({
-      error: "waith",
+      error: "failed to sigin",
     });
   }
 });

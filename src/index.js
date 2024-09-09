@@ -3,63 +3,61 @@ const express = require("express");
 const { createServer } = require("node:http");
 const path = require("path");
 const cookieSession = require("cookie-session");
+const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const { Server } = require("socket.io");
 
-//controller
 const userAuthRouter = require("./controller/user");
 const friendRouter = require("./controller/friends");
-const messageMap = [];
+const {
+  CONNECTION,
+  onConnection,
+  CHAT_MESSAGE,
+  START_MESSAGE,
+  chatMessageGetALL,
+  storeChatText,
+} = require("./socket-utils");
 const PORT = process.env.PORT || 4000;
-
-// let socketConnection = new Set();
-// io.on("connection", onConnection);
-
-// function onConnection(socket) {
-//   io.emit("get-connection", socket.id);
-//   console.log(socket.id);
-//   socketConnection.add(socket.id);
-
-//   io.emit("client-total", socketConnection.size);
-//   io.emit("all-message", messageMap);
-
-//   socket.on("disconnect", () => {
-//     console.log("socket diconected socet id", socket.id);
-//     socketConnection.delete(socket.id);
-
-//     io.emit("client-total", socketConnection.size);
-//   });
-//   //   console.log(socketConnection.size);
-
-//   /**
-//    * handling message event
-//    */
-
-//   socket.on("message", (data) => {
-//     const newData = {
-//       ...data,
-//       senderId: socket.id,
-//     };
-//     messageMap.push(newData);
-//     io.emit("all-message", messageMap);
-//   });
-// }
+const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+  cors: { origin: "http://localhost:5173" },
+});
 
 async function main(params) {
-  const app = express();
   app.use(express.static(path.join(__dirname, "..", "public")));
   app.use(express.json());
   app.use(
     cookieSession({
       keys: ["lkasld235j"],
+      secure: process.env.NODE_ENV === "production", // enable secure cookies only in production
+      sameSite: "None", // Allow cross-site cookie usage
+      httpOnly: true, // Helps prevent XSS attacks
     })
   );
-  app.use(cors());
+  app.use(cookieParser("1234"));
+  app.use(
+    cors({
+      origin: "*", // or your React app's origin
+    })
+  );
   app.use(userAuthRouter);
   app.use(friendRouter);
 
-  const server = createServer(app);
-  const io = new Server(server);
+  io.on(CONNECTION, async (socket) => {
+    socket.on(START_MESSAGE, async () => {
+      try {
+        const allMessage = await chatMessageGetALL();
+        io.emit(START_MESSAGE, allMessage);
+      } catch (error) {}
+    });
+
+    socket.on(CHAT_MESSAGE, async ({ text, senderName }) => {
+      await storeChatText({ text, senderName });
+      io.emit(CHAT_MESSAGE, { text, senderName });
+    });
+  });
+
   server.listen(PORT, () => {
     console.log("server running at http://localhost:4000");
   });

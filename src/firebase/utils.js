@@ -20,12 +20,10 @@ initializeApp({
 });
 
 const USER_DB = "users";
-const USER_CHAT_DB = "users_chat";
 const CHAT_DB = "chat";
 
 module.exports = {
   db: getFirestore(),
   USER_DB,
-  USER_CHAT_DB,
   CHAT_DB,
 };

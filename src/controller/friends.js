@@ -51,8 +51,6 @@ friendsRouter.post("/api/friend/:id", requireAuth, async (reg, res) => {
 
   const userRef = db.collection(USER_DB).doc(currentId);
   const friendRef = db.collection(USER_DB).doc(friendId);
-  //   const userChatRef = db.collection(USER_CHAT_DB).doc(currentId);
-  //   const friendChatRef = db.collection(USER_CHAT_DB).doc(friendId);
 
   const friendSnapeshot = await friendRef.get();
   const friendData = friendSnapeshot.data();
@@ -65,7 +63,7 @@ friendsRouter.post("/api/friend/:id", requireAuth, async (reg, res) => {
   const salt = crypto.randomBytes(8).toString("hex");
   const chatRef = db.collection(CHAT_DB).doc(salt);
   await chatRef.set({
-    message: [],
+    messages: [],
   });
   await userRef.update({
     friends: FieldValue.arrayUnion({
@@ -81,29 +79,11 @@ friendsRouter.post("/api/friend/:id", requireAuth, async (reg, res) => {
       username: currentUsername,
     }),
   });
-  //   const currentDate = Date.now();
-  //   await userChatRef.update({
-  //     chat: FieldValue.arrayUnion({
-  //       chatId: salt,
-  //       latesMessage: "",
-  //       updateAt: currentDate,
-  //       friendName: username,
-  //     }),
-  //   });
 
-  //   await friendChatRef.update({
-  //     chat: FieldValue.arrayUnion({
-  //       chatId: salt,
-  //       latesMessage: "",
-  //       updateAt: currentDate,
-  //       friendName: currentUsername,
-  //     }),
-  //   });
   return res.status(200).send({
     chatId: salt,
-    latesMessage: "",
-    updateAt: currentDate,
-    friendName: username,
+    id: friendId,
+    username: username,
   });
 });
 
