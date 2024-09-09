@@ -20,15 +20,15 @@ WORKDIR /usr/src/app
 # Leverage a cache mount to /root/.npm to speed up subsequent builds.
 # Leverage a bind mounts to package.json and package-lock.json to avoid having to copy them into
 # into this layer.
-RUN --mount=type=bind,source=package.json,target=package.json \
-    --mount=type=bind,source=package-lock.json,target=package-lock.json \
-    npm ci --omit=dev
+
 
 # Run the application as a non-root user.
 USER node
 
 # Copy the rest of the source files into the image.
 COPY . .
+RUN  npm ci --omit=dev
+
 
 # Expose the port that the application listens on.
 EXPOSE 4000
